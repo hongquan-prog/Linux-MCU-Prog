@@ -1,0 +1,10 @@
+function(redefine_file_name TARGET)
+    get_target_property(SRCS "${TARGET}" SOURCES)
+    foreach(SRC ${SRCS})
+        get_property(SRC_DEF SOURCE "${SRC}" PROPERTY COMPILE_DEFINITIONS)
+        get_filename_component(FILENAME "${SRC}" NAME)
+        list(APPEND SRC_DEF "__FILE__=\"${FILENAME}\"")
+        set_property(SOURCE "${SRC}" PROPERTY COMPILE_DEFINITIONS ${SRC_DEF})
+    endforeach()
+endfunction()
+
