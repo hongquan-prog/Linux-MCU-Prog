@@ -1,25 +1,8 @@
 #pragma once
 
 #include "compiler.h"
+#include <stdbool.h>
 
-#define GPIO1_BASE (0x47400000u)
-#define GPIO2_BASE (0x43810000u)
-#define GPIO3_BASE (0x43820000u)
-#define GPIO4_BASE (0x43830000u)
-
-/*! @brief RGPIO direction definition */
-typedef enum _rgpio_pin_direction
-{
-    kRGPIO_DigitalInput = 0U,  /*!< Set current pin as digital input*/
-    kRGPIO_DigitalOutput = 1U, /*!< Set current pin as digital output*/
-} rgpio_pin_direction_t;
-
-/*!
- * @addtogroup RGPIO_Peripheral_Access_Layer RGPIO Peripheral Access Layer
- * @{
- */
-
-/** RGPIO - Register Layout Typedef */
 typedef struct {
   __I  uint32_t VERID;                             /**< Version ID Register, offset: 0x0 */
   __I  uint32_t PARAM;                             /**< Parameter Register, offset: 0x4 */
@@ -46,27 +29,21 @@ typedef struct {
   __IO uint32_t ISFR[2];                           /**< Interrupt Status Flag Register, array offset: 0x120, array step: 0x4 */
 } RGPIO_Type;
 
+enum FSL_GPIO
+{
+  FSL_GPIO1,
+  FSL_GPIO2,
+  FSL_GPIO3,
+  FSL_GPIO4
+};
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-extern volatile RGPIO_Type *GPIO1;
-extern volatile RGPIO_Type *GPIO2;
-extern volatile RGPIO_Type *GPIO3;
-extern volatile RGPIO_Type *GPIO4;
+RGPIO_Type *RGPIO_GPIOBase(int fd, enum FSL_GPIO gpio);
 
-/*!
- * @brief Initializes GPIO port.
- *
- * @param port      GPIO register address
- */
-static inline void RGPIO_PortInit(volatile RGPIO_Type **port)
-{
-    GPIO1 = port[0];
-    GPIO2 = port[1];
-    GPIO3 = port[2];
-    GPIO4 = port[3];
-}
+void RGPIO_GPIOClean(void);
 
 /*!
  * @brief Initializes a RGPIO pin used by the board.
@@ -76,11 +53,11 @@ static inline void RGPIO_PortInit(volatile RGPIO_Type **port)
  *
  * @param base      RGPIO peripheral base pointer (RGPIOA, RGPIOB, RGPIOC, and so on.)
  * @param pin       RGPIO port pin number
- * @param direction RGPIO direction, input or output
+ * @param output    RGPIO direction, input or output
  */
-static inline void RGPIO_PinInit(volatile RGPIO_Type *base, uint32_t pin, const rgpio_pin_direction_t direction)
+static inline void RGPIO_PinInit(volatile RGPIO_Type *base, uint32_t pin, const bool output)
 {
-    if (direction == kRGPIO_DigitalInput)
+    if (output != true)
     {
         base->PDDR &= ~(1UL << pin);
     }

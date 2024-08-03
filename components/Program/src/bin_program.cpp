@@ -9,20 +9,18 @@
  */
 #include "log.h"
 #include "bin_program.h"
-#include "target_swd.h"
 
 #define TAG "bin_prog"
 
-BinaryProgram::BinaryProgram()
-    : _flash_accessor(FlashAccessor::get_instance()),
+BinaryProgram::BinaryProgram(SWDIface &swd)
+    : _flash(swd),
       _program_addr(0)
 {
-    _flash_accessor.swd_init(TargetSWD::get_instance());
 }
 
 BinaryProgram::~BinaryProgram()
 {
-    _flash_accessor.uninit();
+    _flash.uninit();
 }
 
 bool BinaryProgram::init(const FlashIface::target_cfg_t &cfg, uint32_t program_addr)
@@ -36,12 +34,12 @@ bool BinaryProgram::init(const FlashIface::target_cfg_t &cfg, uint32_t program_a
     _program_addr = program_addr;
     LOG_INFO("Starting to program bin at 0x%x", _program_addr);
 
-    return (_flash_accessor.init(cfg) == FlashIface::ERR_NONE);
+    return (_flash.init(cfg) == FlashIface::ERR_NONE);
 }
 
 bool BinaryProgram::write(uint8_t *data, size_t len)
 {
-    if (FlashIface::ERR_NONE != _flash_accessor.write(_program_addr, data, len))
+    if (FlashIface::ERR_NONE != _flash.write(_program_addr, data, len))
     {
         LOG_ERROR("Failed to write data at:%x", _program_addr);
         return false;
@@ -60,5 +58,5 @@ size_t BinaryProgram::get_program_address(void)
 void BinaryProgram::clean()
 {
     _program_addr = 0;
-    _flash_accessor.uninit();
+    _flash.uninit();
 }

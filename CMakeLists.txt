@@ -12,16 +12,15 @@ set(CMAKE_C_FLAGS  "-Wall -pipe -fmerge-all-constants -fno-strict-aliasing -ffun
 set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g -fsanitize=address,leak,thread")
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address,leak,thread")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g -fsanitize=address,leak")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -fsanitize=address,leak")
 
 include(${CMAKE_SOURCE_DIR}/cmake/utility.cmake)
-add_subdirectory(components/DAP)
-add_subdirectory(components/Platform)
 add_subdirectory(components/Program)
+add_subdirectory(components/SWD)
 add_executable(Prog ${CMAKE_SOURCE_DIR}/main/main.cpp)
 
-target_link_libraries(Prog DAP Platform Program)
+target_link_libraries(Prog PRIVATE Program SWD)
 set_target_properties(Prog PROPERTIES SUFFIX .elf)
 target_link_options(Prog PRIVATE
     -pipe 

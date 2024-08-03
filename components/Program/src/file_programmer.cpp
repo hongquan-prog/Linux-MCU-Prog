@@ -33,7 +33,7 @@ ProgramIface *FileProgrammer::selcet_program_iface(const std::string &path)
     {
         return &_binary_program;
     }
-    
+
     LOG_INFO("Invalid suffix");
 
     return nullptr;
@@ -108,10 +108,11 @@ int FileProgrammer::get_program_progress(void)
 
 void FileProgrammer::set_program_progress(int progress)
 {
-    _program_progress = progress;
-
-    if (_progress_changed_cb)
+    if ((_program_progress != progress) && _progress_changed_cb)
+    {
+        _program_progress = progress;
         _progress_changed_cb(_program_progress);
+    }
 }
 
 void FileProgrammer::register_progress_changed_callback(const progress_changed_cb_t &func)

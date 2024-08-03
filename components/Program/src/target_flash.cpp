@@ -14,8 +14,8 @@
 #define TAG "target_flash"
 #define DEFAULT_PROGRAM_PAGE_MIN_SIZE (256u)
 
-TargetFlash::TargetFlash()
-    : _swd(nullptr),
+TargetFlash::TargetFlash(SWDIface &swd)
+    : _swd(swd),
       _flash_cfg(nullptr),
       _last_func_type(FLASH_FUNC_NOP),
       _current_flash_algo(nullptr),
@@ -60,14 +60,14 @@ FlashIface::err_t TargetFlash::flash_func_start(FlashIface::func_t func_type)
     {
         // Finish the currently active function.
         if (FLASH_FUNC_NOP != _last_func_type && (FLASH_FUNC_NOP == func_type) &&
-            !_swd->flash_syscall_exec(&_current_flash_algo->sys_call_s, _current_flash_algo->uninit, _last_func_type, 0, 0, 0))
+            !_swd.flash_syscall_exec(&_current_flash_algo->sys_call_s, _current_flash_algo->uninit, _last_func_type, 0, 0, 0))
         {
             return ERR_UNINIT;
         }
 
         // Start a new function.
         if (FLASH_FUNC_NOP != func_type && (FLASH_FUNC_NOP == _last_func_type) &&
-            !_swd->flash_syscall_exec(&_current_flash_algo->sys_call_s, _current_flash_algo->init, _flash_start_addr, 0, func_type, 0))
+            !_swd.flash_syscall_exec(&_current_flash_algo->sys_call_s, _current_flash_algo->init, _flash_start_addr, 0, func_type, 0))
         {
             return ERR_INIT;
         }
@@ -78,20 +78,15 @@ FlashIface::err_t TargetFlash::flash_func_start(FlashIface::func_t func_type)
     return ERR_NONE;
 }
 
-void TargetFlash::swd_init(SWDIface &swd)
-{
-    _swd = &swd;
-}
-
 FlashIface::err_t TargetFlash::flash_init(const target_cfg_t &cfg)
 {
     _flash_cfg = &cfg;
     _last_func_type = FLASH_FUNC_NOP;
     _current_flash_algo = nullptr;
 
-    if (!_swd->set_target_state(SWDIface::TARGET_RESET_PROGRAM))
+    if (!_swd.set_target_state(SWDIface::TARGET_RESET_PROGRAM))
     {
-        _swd->off();
+        _swd.off();
         return ERR_RESET;
     }
 
@@ -121,7 +116,7 @@ FlashIface::err_t TargetFlash::flash_uninit(void)
         }
 
         // Resume the target if configured to do so
-        _swd->set_target_state(SWDIface::TARGET_RESET_RUN);
+        _swd.set_target_state(SWDIface::TARGET_RESET_RUN);
 
         _flash_state = FLASH_STATE_CLOSED;
         return ERR_NONE;
@@ -159,14 +154,14 @@ FlashIface::err_t TargetFlash::flash_program_page(uint32_t addr, const uint8_t *
             write_size = (size <= flash_algo->program_buffer_size) ? (size) : (flash_algo->program_buffer_size);
 
             // Write page to buffer
-            if (!_swd->write_memory(flash_algo->program_buffer, (uint8_t *)buf, write_size))
+            if (!_swd.write_memory(flash_algo->program_buffer, (uint8_t *)buf, write_size))
             {
                 LOG_ERROR("Error writing flash buffer");
                 return ERR_ALGO_DATA_SEQ;
             }
 
             // Run flash programming
-            if (!_swd->flash_syscall_exec(&flash_algo->sys_call_s, flash_algo->program_page, addr, write_size, flash_algo->program_buffer, 0))
+            if (!_swd.flash_syscall_exec(&flash_algo->sys_call_s, flash_algo->program_page, addr, write_size, flash_algo->program_buffer, 0))
             {
                 LOG_ERROR("flash_syscall_exec program page error");
                 return ERR_WRITE;
@@ -181,7 +176,7 @@ FlashIface::err_t TargetFlash::flash_program_page(uint32_t addr, const uint8_t *
                     return status;
                 }
 
-                if (!_swd->flash_syscall_exec(&flash_algo->sys_call_s, flash_algo->verify, addr, write_size, flash_algo->program_buffer, 0))
+                if (!_swd.flash_syscall_exec(&flash_algo->sys_call_s, flash_algo->verify, addr, write_size, flash_algo->program_buffer, 0))
                 {
                     return ERR_WRITE_VERIFY;
                 }
@@ -199,7 +194,7 @@ FlashIface::err_t TargetFlash::flash_program_page(uint32_t addr, const uint8_t *
                 {
                     uint32_t verify_size = (write_size_duplicated <= sizeof(_verify_buf)) ? (write_size_duplicated) : (sizeof(_verify_buf));
 
-                    if (!_swd->read_memory(addr, _verify_buf, verify_size))
+                    if (!_swd.read_memory(addr, _verify_buf, verify_size))
                     {
                         LOG_ERROR("Error reading flash buffer");
                         return ERR_ALGO_DATA_SEQ;
@@ -254,7 +249,7 @@ FlashIface::err_t TargetFlash::flash_erase_sector(uint32_t addr)
             return status;
         }
 
-        if (!_swd->flash_syscall_exec(&flash->sys_call_s, flash->erase_sector, addr, 0, 0, 0))
+        if (!_swd.flash_syscall_exec(&flash->sys_call_s, flash->erase_sector, addr, 0, 0, 0))
         {
             return ERR_ERASE_SECTOR;
         }
@@ -296,7 +291,7 @@ FlashIface::err_t TargetFlash::flash_erase_chip(void)
                 return status;
             }
 
-            if (!_swd->flash_syscall_exec(&_current_flash_algo->sys_call_s, _current_flash_algo->erase_chip, 0, 0, 0, 0))
+            if (!_swd.flash_syscall_exec(&_current_flash_algo->sys_call_s, _current_flash_algo->erase_chip, 0, 0, 0, 0))
             {
                 return ERR_ERASE_ALL;
             }
@@ -381,7 +376,7 @@ FlashIface::err_t TargetFlash::flash_algo_set(uint32_t addr)
             return status;
         }
         // Download flash programming algorithm to target
-        if (!_swd->write_memory(new_flash_algo->algo_start, (uint8_t *)new_flash_algo->algo_blob.get(), new_flash_algo->algo_size))
+        if (!_swd.write_memory(new_flash_algo->algo_start, (uint8_t *)new_flash_algo->algo_blob.get(), new_flash_algo->algo_size))
         {
             LOG_ERROR("Error writing flash algo");
             return ERR_ALGO_DL;

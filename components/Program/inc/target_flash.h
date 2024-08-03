@@ -15,7 +15,7 @@
 class TargetFlash : public FlashIface
 {
 private:
-    SWDIface *_swd;
+    SWDIface &_swd;
     const target_cfg_t *_flash_cfg;
     FlashIface::func_t _last_func_type;
     const program_target_t *_current_flash_algo;
@@ -28,8 +28,7 @@ private:
     const FlashIface::program_target_t *get_flash_algo(uint32_t addr);
 
 public:
-    TargetFlash();
-    virtual void swd_init(SWDIface &swd) override;
+    TargetFlash(SWDIface &swd);
     virtual err_t flash_init(const target_cfg_t &cfg) override;
     virtual err_t flash_uninit(void) override;
     virtual err_t flash_program_page(uint32_t adr, const uint8_t *buf, uint32_t size) override;

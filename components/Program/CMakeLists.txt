@@ -1,8 +1,6 @@
 include(${CMAKE_SOURCE_DIR}/cmake/utility.cmake)
 add_library(Program STATIC
-    "src/swd_host.c"
     "src/swd_iface.cpp"
-    "src/target_swd.cpp"
     "src/target_flash.cpp"
     "src/flash_accessor.cpp"
     "src/bin_program.cpp"
@@ -14,5 +12,7 @@ add_library(Program STATIC
 )
 
 target_include_directories(Program PUBLIC "inc")
-target_link_libraries(Program PRIVATE DAP Platform)
 redefine_file_name(Program)
+
+# add_library(Program STATIC IMPORTED)  
+# set_target_properties(Program PROPERTIES IMPORTED_LOCATION lib/libProgram.a)

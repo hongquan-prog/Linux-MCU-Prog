@@ -5,20 +5,21 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2023-9-8      lihongquan   add license declaration
+ * 2024-7-31      lihongquan   add license declaration
  */
 #pragma once
 
-#include "swd_iface.h"
+#include "ah618_swd.h"
+#include "rk3588_gpio.h"
 
-class TargetSWD : public SWDIface
+class RK3588SWD : public AH618SWD
 {
-private:
-    TargetSWD() = default;
+protected:
+    RK3588SWD(RK3588_GPIO clk_port, int clk_pin, RK3588_GPIO dio_port, int dio_pin, bool remapping = true);
 
 public:
-    static TargetSWD &get_instance();
-    virtual void msleep(uint32_t ms) override;
+    ~RK3588SWD();
+    static RK3588SWD &instance(RK3588_GPIO clk_port, int clk_pin, RK3588_GPIO dio_port, int dio_pin);
     virtual bool init(void) override;
     virtual bool off(void) override;
     virtual transfer_err_def transer(uint32_t request, uint32_t *data) override;

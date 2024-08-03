@@ -32,8 +32,8 @@
 #define DHCSR 0xE000EDF0
 #define REGWnR (1 << 16)
 
-#define MAX_SWD_RETRY 500000
-#define MAX_TIMEOUT 500000
+#define MAX_SWD_RETRY 100
+#define MAX_TIMEOUT 1000000
 
 //! This can vary from target to target and should be in the structure or flash blob
 #define TARGET_AUTO_INCREMENT_PAGE_SIZE (1024)
@@ -70,10 +70,14 @@ SWDIface::transfer_err_def SWDIface::transfer_retry(uint32_t req, uint32_t *data
     uint32_t i = 0;
     transfer_err_def ack = TRANSFER_OK;
 
-    for (i = 0; i < MAX_SWD_RETRY; i++)
+    for (i = 0; (TRANSFER_WAIT == ack) || (i < MAX_SWD_RETRY); i++)
     {
         ack = transer(req, data);
-        if (ack == TRANSFER_OK || TRANSFER_WAIT != ack)
+        if (ack == TRANSFER_OK)
+        {
+            return ack;
+        }
+        else if (ack == TRANSFER_NO_REPLY)
         {
             return ack;
         }
@@ -298,9 +302,9 @@ bool SWDIface::write_data(uint32_t address, uint32_t data)
         return false;
     }
 
+    if (address)
     // dummy read
     req = SWD_REG_DP | SWD_REG_R | SWD_REG_ADR(DP_RDBUFF);
-
     return (transfer_retry(req, nullptr) == TRANSFER_OK);
 }
 
@@ -326,12 +330,7 @@ bool SWDIface::write_word(uint32_t addr, uint32_t val)
         return false;
     }
 
-    if (!write_data(addr, val))
-    {
-        return false;
-    }
-
-    return true;
+    return write_data(addr, val);
 }
 
 bool SWDIface::read_byte(uint32_t addr, uint8_t *val)
@@ -379,7 +378,6 @@ bool SWDIface::read_memory(uint32_t address, uint8_t *data, uint32_t size)
     {
         if (!read_byte(address, data))
         {
-            LOG_ERROR("read from %x failed", address);
             return false;
         }
 
@@ -836,7 +834,7 @@ bool SWDIface::set_target_state(target_state_t state)
                 return false;
             }
         } while ((val & S_HALT) == 0);
-
+        
         // Perform a soft reset
         if (!read_word(NVIC_AIRCR, &val))
         {
@@ -857,11 +855,9 @@ bool SWDIface::set_target_state(target_state_t state)
             return false;
         }
 
-        msleep(1000);
         // Enable debug and halt the core (DHCSR <- 0xA05F0003)
         if (!write_word(DBG_HCSR, DBGKEY | C_DEBUGEN | C_HALT))
         {
-            LOG_ERROR("2");
             return false;
         }
 
@@ -886,10 +882,8 @@ bool SWDIface::set_target_state(target_state_t state)
             return false;
         }
 
-        if (!write_word(NVIC_AIRCR, VECTKEY | (val & SCB_AIRCR_PRIGROUP_Msk) | SYSRESETREQ))
-        {
-            return false;
-        }
+        write_word(NVIC_AIRCR, VECTKEY | (val & SCB_AIRCR_PRIGROUP_Msk) | SYSRESETREQ);
+        msleep(200);
 
         do
         {
@@ -897,6 +891,7 @@ bool SWDIface::set_target_state(target_state_t state)
             {
                 return false;
             }
+            msleep(10);
         } while ((val & S_HALT) == 0);
 
         // Disable halt on reset
@@ -984,4 +979,29 @@ bool SWDIface::set_target_state(target_state_t state)
     }
 
     return true;
+}
+
+uint32_t SWDIface::delay_calculate(uint32_t cpu_freq, uint32_t swj_clock, uint32_t io_write_cycles, uint32_t slow_delay_cycles, uint32_t fast_delay_cycles)
+{
+    uint32_t delay;
+
+    if (swj_clock >= ((cpu_freq / 2U) / (io_write_cycles + fast_delay_cycles)))
+    {
+        return 1;
+    }
+    else
+    {
+        delay = ((cpu_freq / 2U) + (swj_clock - 1U)) / swj_clock;
+        if (delay > io_write_cycles)
+        {
+            delay -= io_write_cycles;
+            delay = (delay + (slow_delay_cycles - 1U)) / slow_delay_cycles;
+        }
+        else
+        {
+            delay = 1U;
+        }
+
+        return delay;
+    }
 }

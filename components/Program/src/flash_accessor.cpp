@@ -11,12 +11,12 @@
 #include "flash_accessor.h"
 #include <cstring>
 
-#define TAG "flash_accessor"
+#define TAG "flash"
 #define ROUND_UP(value, boundary) ((value) + ((boundary) - (value)) % (boundary))
 #define ROUND_DOWN(value, boundary) ((value) - ((value) % (boundary)))
 
-FlashAccessor::FlashAccessor()
-    : TargetFlash(),
+FlashAccessor::FlashAccessor(SWDIface &swd)
+    : TargetFlash(swd),
       _flash_state(FLASH_STATE_CLOSED),
       _current_sector_valid(false),
       _last_packet_addr(0),
@@ -27,12 +27,6 @@ FlashAccessor::FlashAccessor()
       _page_buf_empty(true)
 {
     memset(_page_buffer, 0xff, sizeof(_page_buffer));
-}
-
-FlashAccessor &FlashAccessor::get_instance()
-{
-    static FlashAccessor instance;
-    return instance;
 }
 
 FlashIface::err_t FlashAccessor::flush_current_block(uint32_t addr)

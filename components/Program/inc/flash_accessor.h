@@ -25,13 +25,12 @@ private:
     bool _page_buf_empty;
     uint8_t _page_buffer[_page_size];
 
-    FlashAccessor();
     FlashIface::err_t flush_current_block(uint32_t addr);
     FlashIface::err_t setup_next_sector(uint32_t addr);
 
 public:
+    FlashAccessor(SWDIface &swd);
     ~FlashAccessor() = default;
-    static FlashAccessor &get_instance();
     FlashIface::err_t init(const target_cfg_t &cfg);
     FlashIface::err_t write(uint32_t addr, const uint8_t *data, uint32_t size);
     FlashIface::err_t uninit();

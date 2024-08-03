@@ -27,7 +27,8 @@ public:
         TRANSFER_WAIT = 0x02,
         TRANSFER_FAULT = 0x04,
         TRANSFER_ERROR = 0x08,
-        TRANSFER_MISMATCH = 0x10
+        TRANSFER_MISMATCH = 0x10,
+        TRANSFER_NO_REPLY = 0x07
     };
 
     typedef enum
@@ -63,6 +64,7 @@ public:
     bool read_memory(uint32_t address, uint8_t *data, uint32_t size);
     bool write_memory(uint32_t address, uint8_t *data, uint32_t size);
     bool flash_syscall_exec(const syscall_t *sysCallParam, uint32_t entry, uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4);
+    static uint32_t delay_calculate(uint32_t cpu_freq, uint32_t swj_clock, uint32_t io_write_cycles, uint32_t slow_delay_cycles, uint32_t fast_delay_cycles);
 
 protected:
     typedef struct

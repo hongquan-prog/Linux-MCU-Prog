@@ -19,6 +19,7 @@
 #define LOG_COLOR_CYAN "\x1b[36m"
 #define LOG_COLOR_RESET "\x1b[0m"
 
+#define LOG_PRINTF(format, ...) printf(LOG_COLOR_GREEN "I %s: " format LOG_COLOR_RESET, TAG, ##__VA_ARGS__)
 #define LOG_INFO(format, ...) printf(LOG_COLOR_GREEN "I %s: " format LOG_COLOR_RESET "\n", TAG, ##__VA_ARGS__)
 #define LOG_WARN(format, ...) printf(LOG_COLOR_YELLOW "W %s: " format LOG_COLOR_RESET "\n", TAG, ##__VA_ARGS__)
 #define LOG_ERROR(format, ...) printf(LOG_COLOR_RED "E %s: " format LOG_COLOR_RESET "\n", TAG, ##__VA_ARGS__)

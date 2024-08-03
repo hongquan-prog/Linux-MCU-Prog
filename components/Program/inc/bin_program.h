@@ -17,11 +17,11 @@
 class BinaryProgram : public ProgramIface
 {
 protected:
-    FlashAccessor &_flash_accessor;
+    FlashAccessor _flash;
     uint32_t _program_addr;
 
 public:
-    BinaryProgram();
+    BinaryProgram(SWDIface &swd);
     virtual ~BinaryProgram();
     virtual bool init(const FlashIface::target_cfg_t &cfg, uint32_t program_start_addr = 0) override;
     virtual bool write(uint8_t *data, size_t len) override;

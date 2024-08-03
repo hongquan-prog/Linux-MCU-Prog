@@ -23,7 +23,7 @@ private:
     bool write_hex(const uint8_t *data, uint32_t size, uint32_t &decode_size);
 
 public:
-    HexProgram();
+    HexProgram(SWDIface &swd);
     virtual bool init(const FlashIface::target_cfg_t &cfg, uint32_t program_addr) override;
     virtual bool write(uint8_t *data, size_t len) override;
 };

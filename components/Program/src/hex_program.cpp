@@ -12,8 +12,8 @@
 
 #define TAG "hex_prog"
 
-HexProgram::HexProgram()
-    : BinaryProgram()
+HexProgram::HexProgram(SWDIface &swd)
+    : BinaryProgram(swd)
 {
 }
 
@@ -21,7 +21,7 @@ bool HexProgram::init(const FlashIface::target_cfg_t &cfg, uint32_t program_addr
 {
     _program_addr = 0;
     reset_hex_parser(&_hex_parser);
-    return (_flash_accessor.init(cfg) == FlashIface::ERR_NONE);
+    return (_flash.init(cfg) == FlashIface::ERR_NONE);
 }
 
 bool HexProgram::write(uint8_t *data, size_t len)
@@ -66,7 +66,7 @@ bool HexProgram::write_hex(const uint8_t *hex_data, uint32_t size, uint32_t &dec
             if (bin_buf_written > 0)
             {
                 decode_size += bin_buf_written;
-                if (FlashIface::ERR_NONE != _flash_accessor.write(bin_start_address, _decode_buffer, bin_buf_written))
+                if (FlashIface::ERR_NONE != _flash.write(bin_start_address, _decode_buffer, bin_buf_written))
                 {
                     return false;
                 }
@@ -79,7 +79,7 @@ bool HexProgram::write_hex(const uint8_t *hex_data, uint32_t size, uint32_t &dec
             if (bin_buf_written > 0)
             {
                 decode_size += bin_buf_written;
-                if (FlashIface::ERR_NONE != _flash_accessor.write(bin_start_address, _decode_buffer, bin_buf_written))
+                if (FlashIface::ERR_NONE != _flash.write(bin_start_address, _decode_buffer, bin_buf_written))
                 {
                     return false;
                 }
@@ -94,7 +94,7 @@ bool HexProgram::write_hex(const uint8_t *hex_data, uint32_t size, uint32_t &dec
             if (bin_buf_written > 0)
             {
                 decode_size += bin_buf_written;
-                if (FlashIface::ERR_NONE != _flash_accessor.write(bin_start_address, _decode_buffer, bin_buf_written))
+                if (FlashIface::ERR_NONE != _flash.write(bin_start_address, _decode_buffer, bin_buf_written))
                 {
                     return false;
                 }
