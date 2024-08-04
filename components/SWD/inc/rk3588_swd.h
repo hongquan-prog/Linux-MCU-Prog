@@ -14,12 +14,9 @@
 
 class RK3588SWD : public AH618SWD
 {
-protected:
-    RK3588SWD(RK3588_GPIO clk_port, int clk_pin, RK3588_GPIO dio_port, int dio_pin, bool remapping = true);
-
 public:
     ~RK3588SWD();
-    static RK3588SWD &instance(RK3588_GPIO clk_port, int clk_pin, RK3588_GPIO dio_port, int dio_pin);
+    RK3588SWD(RK3588_GPIO clk_port, int clk_pin, RK3588_GPIO dio_port, int dio_pin, uint32_t clock, bool remapping = true);
     virtual bool init(void) override;
     virtual bool off(void) override;
     virtual transfer_err_def transer(uint32_t request, uint32_t *data) override;

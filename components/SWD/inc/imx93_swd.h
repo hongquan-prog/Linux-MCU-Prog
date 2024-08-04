@@ -14,12 +14,9 @@
 
 class IMX93SWD : public AH618SWD
 {
-protected:
-    IMX93SWD(FSL_GPIO clk_port, int clk_pin, FSL_GPIO dio_port, int dio_pin, bool remapping = true);
-
 public:
     ~IMX93SWD();
-    static IMX93SWD &instance(FSL_GPIO clk_port, int clk_pin, FSL_GPIO dio_port, int dio_pin);
+    IMX93SWD(FSL_GPIO clk_port, int clk_pin, FSL_GPIO dio_port, int dio_pin, uint32_t clock, bool remapping = true);
     virtual bool init(void) override;
     virtual bool off(void) override;
     virtual transfer_err_def transer(uint32_t request, uint32_t *data) override;

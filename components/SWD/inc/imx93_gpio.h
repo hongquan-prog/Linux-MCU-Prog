@@ -55,15 +55,15 @@ void RGPIO_GPIOClean(void);
  * @param pin       RGPIO port pin number
  * @param output    RGPIO direction, input or output
  */
-static inline void RGPIO_PinInit(volatile RGPIO_Type *base, uint32_t pin, const bool output)
+static inline void RGPIO_PinInit(volatile void *base, uint32_t pin, const bool output)
 {
     if (output != true)
     {
-        base->PDDR &= ~(1UL << pin);
+        ((volatile RGPIO_Type *)base)->PDDR &= ~(1UL << pin);
     }
     else
     {
-        base->PDDR |= (1UL << pin);
+        ((volatile RGPIO_Type *)base)->PDDR |= (1UL << pin);
     }
 }
 
@@ -71,15 +71,15 @@ static inline void RGPIO_PinInit(volatile RGPIO_Type *base, uint32_t pin, const 
  * @brief Sets the output level of the multiple RGPIO pins to the logic 1 or 0.
  * @deprecated Do not use this function.  It has been superceded by @ref RGPIO_PinWrite.
  */
-static inline void RGPIO_WritePinOutput(volatile RGPIO_Type *base, uint32_t pin, uint8_t output)
+static inline void RGPIO_WritePinOutput(volatile void *base, uint32_t pin, uint8_t output)
 {
     if (output == 0U)
     {
-        base->PCOR = 1UL << pin;
+        ((volatile RGPIO_Type *)base)->PCOR = 1UL << pin;
     }
     else
     {
-        base->PSOR = 1UL << pin;
+        ((volatile RGPIO_Type *)base)->PSOR = 1UL << pin;
     }
 }
 
@@ -87,9 +87,9 @@ static inline void RGPIO_WritePinOutput(volatile RGPIO_Type *base, uint32_t pin,
  * @brief Sets the output level of the multiple RGPIO pins to the logic 1.
  * @deprecated Do not use this function.  It has been superceded by @ref RGPIO_PortSet.
  */
-static inline void RGPIO_SetPinsOutput(volatile RGPIO_Type *base, uint32_t pin)
+static inline void RGPIO_SetPinsOutput(volatile void *base, uint32_t pin)
 {
-    base->PSOR = (1 << pin);
+    ((volatile RGPIO_Type *)base)->PSOR = (1 << pin);
 }
 
 /*!
@@ -99,18 +99,18 @@ static inline void RGPIO_SetPinsOutput(volatile RGPIO_Type *base, uint32_t pin)
  * @param base RGPIO peripheral base pointer (RGPIOA, RGPIOB, RGPIOC, and so on.)
  * @param pin RGPIO pin number macro
  */
-static inline void RGPIO_ClearPinsOutput(volatile RGPIO_Type *base, uint32_t pin)
+static inline void RGPIO_ClearPinsOutput(volatile void *base, uint32_t pin)
 {
-    base->PCOR = (1 << pin);
+    ((volatile RGPIO_Type *)base)->PCOR = (1 << pin);
 }
 
 /*!
  * @brief Reverses the current output logic of the multiple RGPIO pins.
  * @deprecated Do not use this function.  It has been superceded by @ref RGPIO_PortToggle.
  */
-static inline void RGPIO_TogglePinsOutput(volatile RGPIO_Type *base, uint32_t pin)
+static inline void RGPIO_TogglePinsOutput(volatile void *base, uint32_t pin)
 {
-    base->PTOR = (1 << pin);
+    ((volatile RGPIO_Type *)base)->PTOR = (1 << pin);
 }
 
 /*! @name RGPIO Input Operations */
@@ -125,9 +125,9 @@ static inline void RGPIO_TogglePinsOutput(volatile RGPIO_Type *base, uint32_t pi
  *        - 0: corresponding pin input low-logic level.
  *        - 1: corresponding pin input high-logic level.
  */
-static inline uint32_t RGPIO_ReadPinInput(volatile RGPIO_Type *base, uint32_t pin)
+static inline uint32_t RGPIO_ReadPinInput(volatile void *base, uint32_t pin)
 {
-    return (((base->PDIR) >> pin) & 0x01U);
+    return (((((volatile RGPIO_Type *)base)->PDIR) >> pin) & 0x01U);
 }
 
 #if defined(__cplusplus)

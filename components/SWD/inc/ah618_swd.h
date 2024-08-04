@@ -9,21 +9,22 @@
  */
 #pragma once
 
+#include "sw_dp.h"
 #include "swd_iface.h"
 #include "ah618_gpio.h"
 
 class AH618SWD : public SWDIface
 {
 protected:
-    bool _fast_clock;
     bool _initialised;
     int _dev_mem_fd;
-
-    AH618SWD(AH618_GPIO clk_port, int clk_pin, AH618_GPIO dio_port, int dio_pin, bool remapping = true);
+    uint32_t _delay;
+    volatile swd_pin_t _clk;
+    volatile swd_pin_t _dio;
 
 public:
     ~AH618SWD();
-    static AH618SWD &instance(AH618_GPIO clk_port, int clk_pin, AH618_GPIO dio_port, int dio_pin);
+    AH618SWD(AH618_GPIO clk_port, int clk_pin, AH618_GPIO dio_port, int dio_pin, uint32_t clock, bool remapping = true);
     virtual void msleep(uint32_t ms) override;
     virtual bool init(void) override;
     virtual bool off(void) override;

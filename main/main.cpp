@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     struct timeval start = {0};
     struct timeval end = {0};
     uint32_t base_addr = 0;
-    static RK3588SWD &swd = RK3588SWD::instance(RK3588_GPIO4, 1, RK3588_GPIO4, 2);
+    static RK3588SWD swd(RK3588_GPIO4, 1, RK3588_GPIO4, 2, 400000);
     static BinaryProgram bin_program(swd);
     static HexProgram hex_program(swd);
     static FileProgrammer prog(bin_program, hex_program);

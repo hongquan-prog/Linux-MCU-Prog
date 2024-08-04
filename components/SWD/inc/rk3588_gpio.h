@@ -41,27 +41,6 @@ typedef struct
     __IO uint32_t VIRTUAL_EN;
 } RK3588_GPIO_Type;
 
-typedef struct
-{
-    __IO uint32_t GPIO0A_IOMUX_LOW;
-    __IO uint32_t GPIO0A_IOMUX_HIGH;
-    __IO uint32_t GPIO0B_IOMUX_LOW;
-    uint32_t RESERVED_1;
-    __IO uint32_t GPIO0A_DRV_LOW;
-    __IO uint32_t GPIO0A_DRV_HIGH;
-    __IO uint32_t GPIO0B_DRV_LOW;
-    uint32_t RESERVED_2;
-    __IO uint32_t GPIO0A_PULL;
-    __IO uint32_t GPIO0B_PULL;
-    __IO uint32_t GPIO0A_INT_EN;
-    __IO uint32_t GPIO0B_INT_EN;
-    __IO uint32_t GPIO0A_SMT;
-    __IO uint32_t GPIO0B_SMT;
-    __IO uint32_t GPIO0A_PDIS;
-    __IO uint32_t GPIO0B_PDIS;
-    __IO uint32_t XIN_CON;
-} RK3588_PMU_Type;
-
 enum RK3588_GPIO
 {
     RK3588_GPIO0,
@@ -88,9 +67,9 @@ RK3588_GPIO_Type *RK3588_GPIOBase(int fd, enum RK3588_GPIO gpio);
 
 void RK3588_Clean(void);
 
-static inline void RK3588_PinInit(volatile RK3588_GPIO_Type *base, uint32_t pin, const bool output)
+static inline void RK3588_PinInit(volatile void *base, uint32_t pin, const bool output)
 {
-    volatile uint32_t *dir = (volatile uint32_t *)(&base->DIR_LOW) + pin / 16;
+    volatile uint32_t *dir = (volatile uint32_t *)(&((volatile RK3588_GPIO_Type *)base)->DIR_LOW) + pin / 16;
 
     if (output)
     {
@@ -102,9 +81,9 @@ static inline void RK3588_PinInit(volatile RK3588_GPIO_Type *base, uint32_t pin,
     }
 }
 
-static inline void RK3588_WritePinOutput(volatile RK3588_GPIO_Type *base, uint32_t pin, uint8_t output)
+static inline void RK3588_WritePinOutput(volatile void *base, uint32_t pin, uint8_t output)
 {
-    volatile uint32_t *data = ((volatile uint32_t *)(&base->DATA_LOW)) + pin / 16;
+    volatile uint32_t *data = ((volatile uint32_t *)(&((volatile RK3588_GPIO_Type *)base)->DATA_LOW)) + pin / 16;
 
     if (output == 0U)
     {
@@ -116,25 +95,24 @@ static inline void RK3588_WritePinOutput(volatile RK3588_GPIO_Type *base, uint32
     }
 }
 
-static inline void RK3588_SetPinsOutput(volatile RK3588_GPIO_Type *base, uint32_t pin)
+static inline void RK3588_SetPinsOutput(volatile void *base, uint32_t pin)
 {
-    volatile uint32_t *data = ((volatile uint32_t *)(&base->DATA_LOW)) + pin / 16;
+    volatile uint32_t *data = ((volatile uint32_t *)(&((volatile RK3588_GPIO_Type *)base)->DATA_LOW)) + pin / 16;
 
     *data = BIT(pin % 16) | BIT(pin % 16 + 16);
 }
 
-static inline void RK3588_ClearPinsOutput(volatile RK3588_GPIO_Type *base, uint32_t pin)
+static inline void RK3588_ClearPinsOutput(volatile void *base, uint32_t pin)
 {
-    volatile uint32_t *data = ((volatile uint32_t *)(&base->DATA_LOW)) + pin / 16;
+    volatile uint32_t *data = ((volatile uint32_t *)(&((volatile RK3588_GPIO_Type *)base)->DATA_LOW)) + pin / 16;
 
     *data = BIT(pin % 16 + 16);
 }
 
-static inline uint32_t RK3588_ReadPinInput(volatile RK3588_GPIO_Type *base, uint32_t pin)
+static inline uint32_t RK3588_ReadPinInput(volatile void *base, uint32_t pin)
 {
-    return (((base->EXT_PORT) >> pin) & 0x01U);
+    return (((((volatile RK3588_GPIO_Type *)base)->EXT_PORT) >> pin) & 0x01U);
 }
-
 
 #if defined(__cplusplus)
 }

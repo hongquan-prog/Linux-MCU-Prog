@@ -50,7 +50,7 @@ AH618_GPIO_Type *AH618_GPIOBase(int fd, enum AH618_GPIO gpio);
 
 void AH618_Clean(void);
 
-static inline void AH618_PinInit(volatile AH618_GPIO_Type *base, uint32_t pin, const bool output)
+static inline void AH618_PinInit(volatile void *base, uint32_t pin, const bool output)
 {
     int offset = (pin % 8) * 4;
     volatile uint32_t *reg = (volatile uint32_t *)base + pin / 8;
@@ -62,63 +62,62 @@ static inline void AH618_PinInit(volatile AH618_GPIO_Type *base, uint32_t pin, c
     }
 }
 
-static inline void AH618_PullInit(volatile AH618_GPIO_Type *base, uint32_t pin, ah618_pull_t pull)
+static inline void AH618_PullInit(volatile void *base, uint32_t pin, ah618_pull_t pull)
 {
     int offset = (pin % 16) * 4;
-    volatile uint32_t *reg = ((volatile uint32_t *)(&base->PUL0)) + pin / 16;
+    volatile uint32_t *reg = ((volatile uint32_t *)(&((volatile AH618_GPIO_Type *)base)->PUL0)) + pin / 16;
 
     *reg &= ~(0x3 << offset);
     *reg |= (pull << offset);
 }
 
-static inline void AH618_DrvInit(volatile AH618_GPIO_Type *base, uint32_t pin, ah618_drv_t drv)
+static inline void AH618_DrvInit(volatile void *base, uint32_t pin, ah618_drv_t drv)
 {
     int offset = (pin % 16) * 4;
-    volatile uint32_t *reg = ((volatile uint32_t *)(&base->DRV0)) + pin / 16;
+    volatile uint32_t *reg = ((volatile uint32_t *)(&((volatile AH618_GPIO_Type *)base)->DRV0)) + pin / 16;
 
     *reg &= ~(0x3 << offset);
     *reg |= (drv << offset);
 }
 
-static inline void AH618_WritePinOutput(volatile AH618_GPIO_Type *base, uint32_t pin, uint8_t output)
+static inline void AH618_WritePinOutput(volatile void *base, uint32_t pin, uint8_t output)
 {
     if (output == 0U)
     {
-        base->DATA &= ~(1UL << pin);
+        ((volatile AH618_GPIO_Type *)base)->DATA &= ~(1UL << pin);
     }
     else
     {
-        base->DATA |= 1UL << pin;
+        ((volatile AH618_GPIO_Type *)base)->DATA |= 1UL << pin;
     }
 }
 
-static inline void AH618_SetPinsOutput(volatile AH618_GPIO_Type *base, uint32_t pin)
+static inline void AH618_SetPinsOutput(volatile void *base, uint32_t pin)
 {
-    base->DATA |= (1 << pin);
+    ((volatile AH618_GPIO_Type *)base)->DATA |= (1 << pin);
 }
 
-static inline void AH618_ClearPinsOutput(volatile AH618_GPIO_Type *base, uint32_t pin)
+static inline void AH618_ClearPinsOutput(volatile void *base, uint32_t pin)
 {
-    base->DATA &= ~(1UL << pin);
+    ((volatile AH618_GPIO_Type *)base)->DATA &= ~(1UL << pin);
 }
 
-static inline void AH618_TogglePinsOutput(volatile AH618_GPIO_Type *base, uint32_t pin)
+static inline void AH618_TogglePinsOutput(volatile void *base, uint32_t pin)
 {
-    if (base->DATA & (1 << pin))
+    if (((volatile AH618_GPIO_Type *)base)->DATA & (1 << pin))
     {
-        base->DATA &= ~(1UL << pin);
+        ((volatile AH618_GPIO_Type *)base)->DATA &= ~(1UL << pin);
     }
     else
     {
-        base->DATA |= (1 << pin);
+        ((volatile AH618_GPIO_Type *)base)->DATA |= (1 << pin);
     }
 }
 
-static inline uint32_t AH618_ReadPinInput(volatile AH618_GPIO_Type *base, uint32_t pin)
+static inline uint32_t AH618_ReadPinInput(volatile void *base, uint32_t pin)
 {
-    return (((base->DATA) >> pin) & 0x01U);
+    return ((((volatile AH618_GPIO_Type *)base)->DATA >> pin) & 0x01U);
 }
-
 
 #if defined(__cplusplus)
 }
