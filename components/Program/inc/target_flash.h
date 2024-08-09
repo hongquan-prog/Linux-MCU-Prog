@@ -14,7 +14,7 @@
 
 class TargetFlash : public FlashIface
 {
-private:
+protected:
     SWDIface &_swd;
     const target_cfg_t *_flash_cfg;
     FlashIface::func_t _last_func_type;
@@ -22,7 +22,7 @@ private:
     FlashIface::state_t _flash_state;
     uint32_t _flash_start_addr;
     const region_info_t *_default_flash_region;
-    uint8_t _verify_buf[256];
+    uint8_t _verify_buf[1024];
 
     err_t flash_func_start(FlashIface::func_t func);
     const FlashIface::program_target_t *get_flash_algo(uint32_t addr);

@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include <string>
 #include "sw_dp.h"
 #include "swd_iface.h"
-#include "ah618_gpio.h"
 
 class AH618SWD : public SWDIface
 {
@@ -24,7 +24,7 @@ protected:
 
 public:
     ~AH618SWD();
-    AH618SWD(AH618_GPIO clk_port, int clk_pin, AH618_GPIO dio_port, int dio_pin, uint32_t clock, bool remapping = true);
+    AH618SWD(int clk_pin, int dio_pin, uint32_t clock, bool remapping = true, const std::string &mem = "/dev/mem");
     virtual void msleep(uint32_t ms) override;
     virtual bool init(void) override;
     virtual bool off(void) override;

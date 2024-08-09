@@ -5,17 +5,17 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2024-7-31      lihongquan   add license declaration
+ * 2024-8-9       lihongquan   adapted to raspberry pi3
  */
 #pragma once
 
 #include "ah618_swd.h"
 
-class IMX93SWD : public AH618SWD
+class BCM2835SWD : public AH618SWD
 {
 public:
-    ~IMX93SWD();
-    IMX93SWD(int clk_pin, int dio_pin, uint32_t clock, bool remapping = true);
+    ~BCM2835SWD();
+    BCM2835SWD(int clk_pin, int dio_pin, uint32_t clock, bool remapping = true);
     virtual bool init(void) override;
     virtual bool off(void) override;
     virtual transfer_err_def transer(uint32_t request, uint32_t *data) override;

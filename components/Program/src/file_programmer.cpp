@@ -7,7 +7,10 @@
 #define TAG "file_programmer"
 
 FileProgrammer::FileProgrammer(ProgramIface &binary_program, ProgramIface &hex_program)
-    : _binary_program(binary_program), _hex_program(hex_program), _program_progress(0), _progress_changed_cb(nullptr)
+    : _binary_program(binary_program),
+      _hex_program(hex_program),
+      _program_progress(0),
+      _progress_changed_cb(nullptr)
 {
 }
 
@@ -39,12 +42,17 @@ ProgramIface *FileProgrammer::selcet_program_iface(const std::string &path)
     return nullptr;
 }
 
-bool FileProgrammer::program(const std::string &path, FlashIface::target_cfg_t &cfg, uint32_t program_addr)
+bool FileProgrammer::program(const std::string &path, const std::string &algo, uint32_t program_addr)
 {
     FILE *fp = nullptr;
     size_t rd_size = 0;
     uint32_t file_size = 0;
     ProgramIface *iface = nullptr;
+
+    if (!_algo.extract(algo, _target, _cfg))
+    {
+        return false;
+    }
 
     if (path.empty())
     {
@@ -70,7 +78,7 @@ bool FileProgrammer::program(const std::string &path, FlashIface::target_cfg_t &
     file_size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    if (iface->init(cfg, program_addr) != true)
+    if (iface->init(_cfg, program_addr) != true)
     {
         fclose(fp);
         return false;
@@ -85,8 +93,8 @@ bool FileProgrammer::program(const std::string &path, FlashIface::target_cfg_t &
             if (iface->write(_buffer, rd_size) != true)
             {
                 fclose(fp);
-                iface->clean();
                 LOG_ERROR("Failed to write hex at:%lx", iface->get_program_address());
+                iface->clean();
                 return false;
             }
 

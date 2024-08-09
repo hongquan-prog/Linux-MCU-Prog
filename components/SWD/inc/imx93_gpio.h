@@ -29,32 +29,15 @@ typedef struct {
   __IO uint32_t ISFR[2];                           /**< Interrupt Status Flag Register, array offset: 0x120, array step: 0x4 */
 } RGPIO_Type;
 
-enum FSL_GPIO
-{
-  FSL_GPIO1,
-  FSL_GPIO2,
-  FSL_GPIO3,
-  FSL_GPIO4
-};
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-RGPIO_Type *RGPIO_GPIOBase(int fd, enum FSL_GPIO gpio);
+RGPIO_Type *RGPIO_GPIOBase(int fd, int pin);
 
 void RGPIO_GPIOClean(void);
 
-/*!
- * @brief Initializes a RGPIO pin used by the board.
- *
- * To initialize the RGPIO, define a pin configuration, as either input or output, in the user file.
- * Then, call the RGPIO_PinInit() function.
- *
- * @param base      RGPIO peripheral base pointer (RGPIOA, RGPIOB, RGPIOC, and so on.)
- * @param pin       RGPIO port pin number
- * @param output    RGPIO direction, input or output
- */
 static inline void RGPIO_PinInit(volatile void *base, uint32_t pin, const bool output)
 {
     if (output != true)
@@ -67,10 +50,6 @@ static inline void RGPIO_PinInit(volatile void *base, uint32_t pin, const bool o
     }
 }
 
-/*!
- * @brief Sets the output level of the multiple RGPIO pins to the logic 1 or 0.
- * @deprecated Do not use this function.  It has been superceded by @ref RGPIO_PinWrite.
- */
 static inline void RGPIO_WritePinOutput(volatile void *base, uint32_t pin, uint8_t output)
 {
     if (output == 0U)
@@ -83,48 +62,16 @@ static inline void RGPIO_WritePinOutput(volatile void *base, uint32_t pin, uint8
     }
 }
 
-/*!
- * @brief Sets the output level of the multiple RGPIO pins to the logic 1.
- * @deprecated Do not use this function.  It has been superceded by @ref RGPIO_PortSet.
- */
 static inline void RGPIO_SetPinsOutput(volatile void *base, uint32_t pin)
 {
     ((volatile RGPIO_Type *)base)->PSOR = (1 << pin);
 }
 
-/*!
- * @brief Sets the output level of the multiple RGPIO pins to the logic 0.
- * @deprecated Do not use this function.  It has been superceded by @ref RGPIO_PortClear.
- *
- * @param base RGPIO peripheral base pointer (RGPIOA, RGPIOB, RGPIOC, and so on.)
- * @param pin RGPIO pin number macro
- */
 static inline void RGPIO_ClearPinsOutput(volatile void *base, uint32_t pin)
 {
     ((volatile RGPIO_Type *)base)->PCOR = (1 << pin);
 }
 
-/*!
- * @brief Reverses the current output logic of the multiple RGPIO pins.
- * @deprecated Do not use this function.  It has been superceded by @ref RGPIO_PortToggle.
- */
-static inline void RGPIO_TogglePinsOutput(volatile void *base, uint32_t pin)
-{
-    ((volatile RGPIO_Type *)base)->PTOR = (1 << pin);
-}
-
-/*! @name RGPIO Input Operations */
-/*@{*/
-
-/*!
- * @brief Reads the current input value of the RGPIO port.
- *
- * @param base RGPIO peripheral base pointer (RGPIOA, RGPIOB, RGPIOC, and so on.)
- * @param pin     RGPIO pin number
- * @retval RGPIO port input value
- *        - 0: corresponding pin input low-logic level.
- *        - 1: corresponding pin input high-logic level.
- */
 static inline uint32_t RGPIO_ReadPinInput(volatile void *base, uint32_t pin)
 {
     return (((((volatile RGPIO_Type *)base)->PDIR) >> pin) & 0x01U);

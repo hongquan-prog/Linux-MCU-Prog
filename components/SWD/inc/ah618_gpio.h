@@ -31,23 +31,11 @@ typedef enum
     AH618_DRV_3
 } ah618_drv_t;
 
-enum AH618_GPIO
-{
-    AH618_GPIOC = 2,
-    AH618_GPIOF = 5,
-    AH618_GPIOG = 6,
-    AH618_GPIOH = 7,
-    AH618_GPIOI = 9,
-    AH618_GPIOL = 0
-};
-
-
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-AH618_GPIO_Type *AH618_GPIOBase(int fd, enum AH618_GPIO gpio);
-
+AH618_GPIO_Type *AH618_GPIOBase(int fd, int pin);
 void AH618_Clean(void);
 
 static inline void AH618_PinInit(volatile void *base, uint32_t pin, const bool output)
@@ -60,24 +48,6 @@ static inline void AH618_PinInit(volatile void *base, uint32_t pin, const bool o
     {
         *reg |= (0x1 << offset);
     }
-}
-
-static inline void AH618_PullInit(volatile void *base, uint32_t pin, ah618_pull_t pull)
-{
-    int offset = (pin % 16) * 4;
-    volatile uint32_t *reg = ((volatile uint32_t *)(&((volatile AH618_GPIO_Type *)base)->PUL0)) + pin / 16;
-
-    *reg &= ~(0x3 << offset);
-    *reg |= (pull << offset);
-}
-
-static inline void AH618_DrvInit(volatile void *base, uint32_t pin, ah618_drv_t drv)
-{
-    int offset = (pin % 16) * 4;
-    volatile uint32_t *reg = ((volatile uint32_t *)(&((volatile AH618_GPIO_Type *)base)->DRV0)) + pin / 16;
-
-    *reg &= ~(0x3 << offset);
-    *reg |= (drv << offset);
 }
 
 static inline void AH618_WritePinOutput(volatile void *base, uint32_t pin, uint8_t output)

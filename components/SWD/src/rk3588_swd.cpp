@@ -16,24 +16,25 @@
 #include "dap.h"
 #include "compiler.h"
 #include "rk3588_swd.h"
+#include "rk3588_gpio.h"
 
 #define TAG "rk3588"
 
 SWD_IO_OPERATIONS_DEFINE(RK3588_PinInit, RK3588_SetPinsOutput, RK3588_ClearPinsOutput, RK3588_ReadPinInput, RK3588_WritePinOutput)
-SWD_TRANSFER_DEFINE(rk3399_swd_transfer)
-SWJ_SEQUENCE_DEFINE(rk3399_swj_sequence)
+SWD_TRANSFER_DEFINE(rk3588_swd_transfer)
+SWJ_SEQUENCE_DEFINE(rk3588_swj_sequence)
 
-RK3588SWD::RK3588SWD(RK3588_GPIO clk_port, int clk_pin, RK3588_GPIO dio_port, int dio_pin, uint32_t clock, bool remapping)
-    : AH618SWD((AH618_GPIO)-1, -1, (AH618_GPIO)-1, -1, clock, false)
+RK3588SWD::RK3588SWD(int clk_pin, int dio_pin, uint32_t clock, bool remapping)
+    : AH618SWD(-1, -1, clock, false)
 {
     if (remapping)
     {
-        _clk.pin = clk_pin;
-        _dio.pin = dio_pin;
+        _clk.pin = clk_pin % 32;
+        _dio.pin = dio_pin % 32;
         LOG_INFO("mmap: pagesize: %u", (unsigned int)sysconf(_SC_PAGE_SIZE));
-        _clk.base = RK3588_GPIOBase(_dev_mem_fd, clk_port);
+        _clk.base = RK3588_GPIOBase(_dev_mem_fd, clk_pin);
         LOG_INFO("swclk port base %p", _clk.base);
-        _dio.base = RK3588_GPIOBase(_dev_mem_fd, dio_port);
+        _dio.base = RK3588_GPIOBase(_dev_mem_fd, dio_pin);
         LOG_INFO("swdio port base %p", _dio.base);
         _delay = delay_calculate(2400 * 1000000U, clock, 1, 2, 1);
         LOG_INFO("swd_clock_delay: %d", _delay);
@@ -68,12 +69,12 @@ bool RK3588SWD::off(void)
 
 SWDIface::transfer_err_def RK3588SWD::transer(uint32_t request, uint32_t *data)
 {
-    return static_cast<transfer_err_def>(rk3399_swd_transfer(&_clk, &_dio, _delay, request, data));
+    return static_cast<transfer_err_def>(rk3588_swd_transfer(&_clk, &_dio, _delay, request, data));
 }
 
 void RK3588SWD::swj_sequence(uint32_t count, const uint8_t *data)
 {
-    rk3399_swj_sequence(&_clk, &_dio, _delay, count, data);
+    rk3588_swj_sequence(&_clk, &_dio, _delay, count, data);
 }
 
 void RK3588SWD::set_target_reset(uint8_t asserted)

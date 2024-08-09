@@ -14,5 +14,6 @@ add_library(Program STATIC
 target_include_directories(Program PUBLIC "inc")
 redefine_file_name(Program)
 
-# add_library(Program STATIC IMPORTED)  
-# set_target_properties(Program PROPERTIES IMPORTED_LOCATION lib/libProgram.a)
+# add_library(Program STATIC IMPORTED GLOBAL)  
+# set_target_properties(Program PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/libProgram.a)
+# target_include_directories(Program INTERFACE "inc")

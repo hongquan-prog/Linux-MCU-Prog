@@ -41,15 +41,6 @@ typedef struct
     __IO uint32_t VIRTUAL_EN;
 } RK3588_GPIO_Type;
 
-enum RK3588_GPIO
-{
-    RK3588_GPIO0,
-    RK3588_GPIO1,
-    RK3588_GPIO2,
-    RK3588_GPIO3,
-    RK3588_GPIO4
-};
-
 typedef enum
 {
     RK3588_PULL_NONE = 0U,
@@ -63,7 +54,7 @@ typedef enum
 extern "C" {
 #endif
 
-RK3588_GPIO_Type *RK3588_GPIOBase(int fd, enum RK3588_GPIO gpio);
+RK3588_GPIO_Type *RK3588_GPIOBase(int fd, int pin);
 
 void RK3588_Clean(void);
 

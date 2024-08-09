@@ -6,6 +6,10 @@ add_library(SWD STATIC
     "src/imx93_gpio.c"
     "src/ah618_gpio.c"
     "src/rk3588_gpio.c"
+    "src/ah6_gpio.c"
+    "src/ah6_swd.cpp"
+    "src/bcm2835_gpio.c"
+    "src/bcm2835_swd.cpp"
 )
 
 target_include_directories(SWD PUBLIC "inc")

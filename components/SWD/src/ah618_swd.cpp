@@ -15,22 +15,21 @@
 
 #include "log.h"
 #include "dap.h"
+#include "ah618_gpio.h"
 
 #define TAG "ah618"
-
-static volatile uint32_t swd_clock_delay = 0;
 
 SWD_IO_OPERATIONS_DEFINE(AH618_PinInit, AH618_SetPinsOutput, AH618_ClearPinsOutput, AH618_ReadPinInput, AH618_WritePinOutput)
 SWD_TRANSFER_DEFINE(awh6_swd_transfer)
 SWJ_SEQUENCE_DEFINE(awh6_swj_sequence)
 
-AH618SWD::AH618SWD(AH618_GPIO clk_port, int clk_pin, AH618_GPIO dio_port, int dio_pin, uint32_t clock, bool remapping)
+AH618SWD::AH618SWD(int clk_pin, int dio_pin, uint32_t clock, bool remapping, const std::string &mem)
     : _initialised(false),
       _delay(0),
       _clk{nullptr, 0},
       _dio{nullptr, 0}
 {
-    _dev_mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
+    _dev_mem_fd = open(mem.c_str(), O_RDWR | O_SYNC);
     if (_dev_mem_fd < 0)
     {
         LOG_ERROR("open: %s", strerror(errno));
@@ -39,12 +38,12 @@ AH618SWD::AH618SWD(AH618_GPIO clk_port, int clk_pin, AH618_GPIO dio_port, int di
 
     if (remapping)
     {
-        _clk.pin = clk_pin;
-        _dio.pin = dio_pin;
+        _clk.pin = clk_pin % 32;
+        _dio.pin = dio_pin % 32;
         LOG_INFO("mmap: pagesize: %u", (unsigned int)sysconf(_SC_PAGE_SIZE));
-        _clk.base = AH618_GPIOBase(_dev_mem_fd, clk_port);
+        _clk.base = AH618_GPIOBase(_dev_mem_fd, clk_pin);
         LOG_INFO("swclk port base %p", _clk.base);
-        _dio.base = AH618_GPIOBase(_dev_mem_fd, dio_port);
+        _dio.base = AH618_GPIOBase(_dev_mem_fd, dio_pin);
         LOG_INFO("swdio port base %p", _dio.base);
         _delay = 0;
         LOG_INFO("clock delay: %d", _delay);

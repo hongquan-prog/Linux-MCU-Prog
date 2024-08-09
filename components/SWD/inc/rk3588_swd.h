@@ -10,13 +10,12 @@
 #pragma once
 
 #include "ah618_swd.h"
-#include "rk3588_gpio.h"
 
 class RK3588SWD : public AH618SWD
 {
 public:
     ~RK3588SWD();
-    RK3588SWD(RK3588_GPIO clk_port, int clk_pin, RK3588_GPIO dio_port, int dio_pin, uint32_t clock, bool remapping = true);
+    RK3588SWD(int clk_pin, int dio_pin, uint32_t clock, bool remapping = true);
     virtual bool init(void) override;
     virtual bool off(void) override;
     virtual transfer_err_def transer(uint32_t request, uint32_t *data) override;

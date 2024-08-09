@@ -16,8 +16,7 @@
 class HexProgram : public BinaryProgram
 {
 private:
-    static constexpr int _decode_buf_size = 256;
-    uint8_t _decode_buffer[_decode_buf_size];
+    uint8_t _decode_buffer[256];
     hex_parser_t _hex_parser;
 
     bool write_hex(const uint8_t *data, uint32_t size, uint32_t &decode_size);

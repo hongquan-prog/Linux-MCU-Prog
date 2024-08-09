@@ -4,6 +4,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+enum
+{
+    RK3588_GPIO0,
+    RK3588_GPIO1,
+    RK3588_GPIO2,
+    RK3588_GPIO3,
+    RK3588_GPIO4
+};
+
 static const uint32_t gpio_base[] = {
     0xFD8A0000,
     0xFEC20000,
@@ -18,13 +27,15 @@ static RK3588_GPIO_Type *gpio_mapped_addr[] = {
     NULL,
     NULL};
 
-RK3588_GPIO_Type *RK3588_GPIOBase(int fd, enum RK3588_GPIO gpio)
+RK3588_GPIO_Type *RK3588_GPIOBase(int fd, int pin)
 {
-    if (gpio <= RK3588_GPIO4)
+    int port = pin / 32;
+
+    if (port <= RK3588_GPIO4)
     {
-        if (!gpio_mapped_addr[gpio])
-            gpio_mapped_addr[gpio] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, gpio_base[gpio]);
-        return gpio_mapped_addr[gpio];
+        if (!gpio_mapped_addr[port])
+            gpio_mapped_addr[port] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, gpio_base[port]);
+        return gpio_mapped_addr[port];
     }
 
     return NULL;

@@ -16,7 +16,7 @@
 
 #include "log.h"
 #include "dap.h"
-#include "compiler.h"
+#include "imx93_gpio.h"
 
 #define TAG "imx93"
 
@@ -24,17 +24,17 @@ SWD_IO_OPERATIONS_DEFINE(RGPIO_PinInit, RGPIO_SetPinsOutput, RGPIO_ClearPinsOutp
 SWD_TRANSFER_DEFINE(imx93_swd_transfer)
 SWJ_SEQUENCE_DEFINE(imx93_swj_sequence)
 
-IMX93SWD::IMX93SWD(FSL_GPIO clk_port, int clk_pin, FSL_GPIO dio_port, int dio_pin, uint32_t clock, bool remapping)
-    : AH618SWD((AH618_GPIO)-1, -1, (AH618_GPIO)-1, -1, clock, false)
+IMX93SWD::IMX93SWD(int clk_pin, int dio_pin, uint32_t clock, bool remapping)
+    : AH618SWD(-1, -1, clock, false)
 {
     if (remapping)
     {
-        _clk.pin = clk_pin;
-        _dio.pin = dio_pin;
+        _clk.pin = clk_pin % 32;
+        _dio.pin = dio_pin % 32;
         LOG_INFO("mmap: pagesize: %u", (unsigned int)sysconf(_SC_PAGE_SIZE));
-        _clk.base = RGPIO_GPIOBase(_dev_mem_fd, clk_port);
+        _clk.base = RGPIO_GPIOBase(_dev_mem_fd, clk_pin);
         LOG_INFO("swclk port base %p", _clk.base);
-        _dio.base = RGPIO_GPIOBase(_dev_mem_fd, dio_port);
+        _dio.base = RGPIO_GPIOBase(_dev_mem_fd, dio_pin);
         LOG_INFO("swdio port base %p", _dio.base);
         _delay = delay_calculate(1500 * 1000000U, clock, 100, 4, 1);
         LOG_INFO("clock delay: %d", _delay);
