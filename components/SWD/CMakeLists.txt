@@ -1,4 +1,4 @@
-include(${CMAKE_SOURCE_DIR}/cmake/utility.cmake)
+include(${CMAKE_SOURCE_DIR}/scripts/utility.cmake)
 add_library(SWD STATIC
     "src/imx93_swd.cpp"
     "src/ah618_swd.cpp"

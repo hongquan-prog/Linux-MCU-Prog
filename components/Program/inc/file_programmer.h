@@ -1,7 +1,6 @@
 #pragma once
 
 #include "program_iface.h"
-#include "algorithm.h"
 #include <functional>
 
 class FileProgrammer
@@ -10,9 +9,7 @@ public:
     using progress_changed_cb_t = std::function<void(int progress)>;
 
 private:
-    Algorithm _algo;
     FlashIface::target_cfg_t _cfg;
-    FlashIface::program_target_t _target;
     
     ProgramIface &_binary_program;
     ProgramIface &_hex_program;
@@ -25,6 +22,7 @@ private:
 
 public:
     FileProgrammer(ProgramIface &binary_program, ProgramIface &hex_program);
+    bool program(const std::string &path, FlashIface::target_cfg_t &algo, uint32_t program_addr = 0);
     bool program(const std::string &path, const std::string &algo, uint32_t program_addr = 0);
     int get_program_progress(void);
     void register_progress_changed_callback(const progress_changed_cb_t &func);

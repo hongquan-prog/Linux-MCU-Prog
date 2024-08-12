@@ -7,18 +7,31 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <sys/mman.h>
+#include <sys/time.h>
 #include <signal.h>
+#include <iostream>
 #include <fstream>
+#include <filesystem> 
 #include "log.h"
 #include "flash_iface.h"
 #include "file_programmer.h"
 #include "bin_program.h"
 #include "hex_program.h"
+#include "algorithm.h"
 #include "ah6_swd.h"
-#include <sys/time.h>
 #include "bcm2835_swd.h"
 
 #define TAG "main"
+
+__attribute__((weak)) const unsigned char *algorithm_bin_ptr()
+{
+    return nullptr;
+}
+
+__attribute__((weak)) unsigned int algorithm_bin_len()
+{
+    return 0;
+}
 
 void progress_handler(int progress)
 {
@@ -104,7 +117,7 @@ std::shared_ptr<SWDIface> swd_create(uint32_t swclk, uint32_t swdio)
                 }
                 else if (name.compare("brcm,bcm2837") == 0)
                 {
-                    swd = std::make_shared<BCM2835SWD>(swclk, swdio, 3000000, true);
+                    swd = std::make_shared<BCM2835SWD>(swclk, swdio, 5000000, true);
                 }
             }
         }
@@ -123,6 +136,12 @@ std::shared_ptr<SWDIface> swd_create(uint32_t swclk, uint32_t swdio)
     return swd;
 }
 
+bool file_exist(const std::string &path)
+{
+    std::ifstream file(path);
+    return file.is_open();
+}
+
 int main(int argc, char *argv[])
 {
     std::shared_ptr<SWDIface> swd;
@@ -134,6 +153,7 @@ int main(int argc, char *argv[])
     uint32_t base_addr = 0;
     uint32_t swclk_pin = 0;
     uint32_t swdio_pin = 0;
+    FlashIface::target_cfg_t cfg;
 
     if (argc < 5 || argc > 6)
     {
@@ -154,13 +174,33 @@ int main(int argc, char *argv[])
         bin = std::make_shared<BinaryProgram>(*swd);
         hex = std::make_shared<HexProgram>(*swd);
         prog = std::make_shared<FileProgrammer>(*bin, *hex);
-
         prog->register_progress_changed_callback(progress_handler);
-        LOG_INFO("algorithm extracted from %s", argv[3]);
-        gettimeofday(&start, NULL);
-        prog->program(argv[4], argv[3], base_addr);
-        gettimeofday(&end, NULL);
-        LOG_INFO("elapsed time: %ld ms", ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec)) / 1000);
+
+        // Finding Algorithms from Programs
+        if (Algorithm::find(algorithm_bin_ptr(), algorithm_bin_len(), argv[3], cfg))
+        {
+            gettimeofday(&start, NULL);
+            if (prog->program(argv[4], cfg, base_addr))
+            {
+                gettimeofday(&end, NULL);
+                LOG_INFO("elapsed time: %ld ms", ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec)) / 1000);
+            }
+        }
+        // Finding Algorithms from file
+        else if (file_exist(argv[3]))
+        {
+            gettimeofday(&start, NULL);
+            if (prog->program(argv[4], argv[3], base_addr))
+            {
+                gettimeofday(&end, NULL);
+                LOG_INFO("elapsed time: %ld ms", ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec)) / 1000);
+            }
+        }
+        else
+        {
+            LOG_ERROR("Unknown device %s", argv[3]);
+            Algorithm::list_device(algorithm_bin_ptr(), algorithm_bin_len());
+        }
     }
     catch (std::exception &e)
     {

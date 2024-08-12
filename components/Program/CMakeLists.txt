@@ -1,4 +1,4 @@
-include(${CMAKE_SOURCE_DIR}/cmake/utility.cmake)
+include(${CMAKE_SOURCE_DIR}/scripts/utility.cmake)
 add_library(Program STATIC
     "src/swd_iface.cpp"
     "src/target_flash.cpp"

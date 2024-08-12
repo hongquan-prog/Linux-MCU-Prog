@@ -35,7 +35,7 @@ const FlashIface::program_target_t *TargetFlash::get_flash_algo(uint32_t addr)
 
             if (flash_region.flash_algo)
             {
-                return flash_region.flash_algo;
+                return flash_region.flash_algo.get();
             }
             else
             {
@@ -48,7 +48,7 @@ const FlashIface::program_target_t *TargetFlash::get_flash_algo(uint32_t addr)
     if (_default_flash_region)
     {
         _flash_start_addr = _default_flash_region->start;
-        return _default_flash_region->flash_algo;
+        return _default_flash_region->flash_algo.get();
     }
 
     return nullptr;

@@ -1,4 +1,5 @@
 #include "file_programmer.h"
+#include "algorithm.h"
 #include "log.h"
 #include <sys/stat.h>
 #include <cstring>
@@ -42,23 +43,20 @@ ProgramIface *FileProgrammer::selcet_program_iface(const std::string &path)
     return nullptr;
 }
 
-bool FileProgrammer::program(const std::string &path, const std::string &algo, uint32_t program_addr)
+bool FileProgrammer::program(const std::string &path, FlashIface::target_cfg_t &algo, uint32_t program_addr)
 {
     FILE *fp = nullptr;
     size_t rd_size = 0;
     uint32_t file_size = 0;
     ProgramIface *iface = nullptr;
 
-    if (!_algo.extract(algo, _target, _cfg))
-    {
-        return false;
-    }
-
     if (path.empty())
     {
         LOG_ERROR("No file specified");
         return false;
     }
+
+    LOG_INFO("device name: %s", algo.device_name.c_str());
 
     iface = selcet_program_iface(path);
     if (iface == nullptr)
@@ -78,7 +76,7 @@ bool FileProgrammer::program(const std::string &path, const std::string &algo, u
     file_size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    if (iface->init(_cfg, program_addr) != true)
+    if (iface->init(algo, program_addr) != true)
     {
         fclose(fp);
         return false;
@@ -107,6 +105,16 @@ bool FileProgrammer::program(const std::string &path, const std::string &algo, u
     iface->clean();
 
     return true;
+}
+
+bool FileProgrammer::program(const std::string &path, const std::string &algo, uint32_t program_addr)
+{
+    if (!Algorithm::extract(algo, _cfg))
+    {
+        return false;
+    }
+
+    return program(path, _cfg, program_addr);
 }
 
 int FileProgrammer::get_program_progress(void)

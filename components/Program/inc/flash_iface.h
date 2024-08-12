@@ -73,10 +73,10 @@ public:
         uint32_t verify;
         SWDIface::syscall_t sys_call_s;
         uint32_t program_buffer;
+        uint32_t program_buffer_size;
         uint32_t algo_start;
         uint32_t algo_size;
         std::shared_ptr<uint32_t[]> algo_blob;
-        uint32_t program_buffer_size;
     } program_target_t;
 
     typedef enum
@@ -87,19 +87,19 @@ public:
 
     typedef struct
     {
-        uint32_t start;                     /*!< Region start address. */
-        uint32_t end;                       /*!< Region end address. */
-        uint32_t flags;                     /*!< Flags for this region from the #reigion_flag_t enumeration. */
-        const program_target_t *flash_algo; /*!< A pointer to the flash algorithm structure */
+        uint32_t start;                               /*!< Region start address. */
+        uint32_t end;                                 /*!< Region end address. */
+        uint32_t flags;                               /*!< Flags for this region from the #reigion_flag_t enumeration. */
+        std::shared_ptr<program_target_t> flash_algo; /*!< A pointer to the flash algorithm structure */
     } region_info_t;
 
     typedef struct
     {
+        uint8_t erase_reset;                      /*!< Reset after performing an erase */
+        std::string device_name;                  /*!< Device name and description */
         std::vector<sector_info_t> sector_info;   /*!< Sector start and length list */
         std::vector<region_info_t> flash_regions; /*!< Flash regions */
         std::vector<region_info_t> ram_regions;   /*!< RAM regions  */
-        uint8_t erase_reset;                      /*!< Reset after performing an erase */
-        std::string device_name;                  /*!< Device name and description */
     } target_cfg_t;
 
     virtual ~FlashIface() = default;

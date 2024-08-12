@@ -126,7 +126,6 @@ FlashIface::err_t FlashAccessor::flush_current_block(uint32_t addr)
 #else
         status = compare_flush_current_block();
 #endif
-        compare_flush_current_block();
         _page_buf_empty = true;
     }
 
