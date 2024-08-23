@@ -20,6 +20,7 @@
 #include "algorithm.h"
 #include "ah6_swd.h"
 #include "bcm2835_swd.h"
+#include "sg2002_swd.h"
 
 #define TAG "main"
 
@@ -118,6 +119,10 @@ std::shared_ptr<SWDIface> swd_create(uint32_t swclk, uint32_t swdio)
                 else if (name.compare("brcm,bcm2837") == 0)
                 {
                     swd = std::make_shared<BCM2835SWD>(swclk, swdio, 5000000, true);
+                }
+                else if (name.compare("cvitek,cv181x") == 0)
+                {
+                    swd = std::make_shared<SG2002SWD>(swclk, swdio, 5000000, true);
                 }
             }
         }

@@ -16,21 +16,6 @@ typedef struct
     __IO uint32_t PUL1;
 } AH618_GPIO_Type;
 
-typedef enum
-{
-    AH618_PULL_NONE = 0U,
-    AH618_PULL_UP = 1U,
-    AH618_PULL_DOWN = 2U
-} ah618_pull_t;
-
-typedef enum
-{
-    AH618_DRV_0,
-    AH618_DRV_1,
-    AH618_DRV_2,
-    AH618_DRV_3
-} ah618_drv_t;
-
 #if defined(__cplusplus)
 extern "C" {
 #endif

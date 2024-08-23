@@ -10,6 +10,8 @@ add_library(SWD STATIC
     "src/ah6_swd.cpp"
     "src/bcm2835_gpio.c"
     "src/bcm2835_swd.cpp"
+    "src/sg2002_gpio.c"
+    "src/sg2002_swd.cpp"
 )
 
 target_include_directories(SWD PUBLIC "inc")
