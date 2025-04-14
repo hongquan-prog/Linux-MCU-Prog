@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <cstring>
 #include <iostream>
+#include <cinttypes> 
 
 #define TAG "file_programmer"
 
@@ -91,7 +92,7 @@ bool FileProgrammer::program(const std::string &path, FlashIface::target_cfg_t &
             if (iface->write(_buffer, rd_size) != true)
             {
                 fclose(fp);
-                LOG_ERROR("Failed to write hex at:%lx", iface->get_program_address());
+                LOG_ERROR("Failed to write hex at:%zx", iface->get_program_address());
                 iface->clean();
                 return false;
             }

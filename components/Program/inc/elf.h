@@ -33,15 +33,34 @@
 #ifndef _SYS_EXEC_ELF_H_
 #define _SYS_EXEC_ELF_H_
 
+#include <sys/types.h>
+
 #define ELFSIZE    32
 
+#ifndef __UINT8_TYPE__
 typedef unsigned char  __uint8_t;
-// typedef unsigned int  __uint32_t;
-// typedef int  __int32_t;
-typedef short  __int16_t;
+#endif
+#ifndef __INT8_TYPE__
+typedef signed char  __int8_t;
+#endif
+#ifndef __UINT16_TYPE__
 typedef unsigned short  __uint16_t;
-typedef uint64_t  __uint64_t;
-typedef int64_t  __int64_t;
+#endif
+#ifndef __INT16_TYPE__
+typedef signed short  __int16_t;
+#endif
+#ifndef __UINT32_TYPE__
+typedef unsigned int  __uint32_t;
+#endif
+#ifndef __INT32_TYPE__
+typedef signed int  __int32_t;
+#endif
+#ifndef __UINT64_TYPE__
+typedef unsigned long long __uint64_t;
+#endif
+#ifndef __INT64_TYPE__
+typedef signed long long __int64_t;
+#endif
 
 
 typedef __uint8_t	Elf_Byte;

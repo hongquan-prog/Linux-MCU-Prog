@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <iostream>
 #include <fstream>
+#include <cinttypes>
 #include <filesystem>
 #include "log.h"
 #include "flash_iface.h"
@@ -248,7 +249,7 @@ int main(int argc, char *argv[])
                 if (prog->program(image, cfg, base_addr))
                 {
                     gettimeofday(&end, NULL);
-                    LOG_INFO("elapsed time: %ld ms", ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec)) / 1000);
+                    LOG_INFO("elapsed time: %" PRId64 " ms", ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec)) / 1000);
                 }
             }
             // Finding Algorithms from file
@@ -258,7 +259,7 @@ int main(int argc, char *argv[])
                 if (prog->program(image, algorithm, base_addr))
                 {
                     gettimeofday(&end, NULL);
-                    LOG_INFO("elapsed time: %ld ms", ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec)) / 1000);
+                    LOG_INFO("elapsed time: %" PRId64 " ms", ((end.tv_sec - start.tv_sec) * 1000000 + (end.tv_usec - start.tv_usec)) / 1000);
                 }
             }
             else

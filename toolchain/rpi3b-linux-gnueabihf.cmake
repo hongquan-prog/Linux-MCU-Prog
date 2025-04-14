@@ -1,0 +1,46 @@
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+set(TOOLCHAIN_PREFIX arm-linux-gnueabihf-)
+
+if(DEFINED CROSS_COMPILER AND NOT "${CROSS_COMPILER}" STREQUAL "")
+    find_program(CMAKE_C_COMPILER NAMES ${TOOLCHAIN_PREFIX}gcc PATHS ${CROSS_COMPILER} NO_DEFAULT_PATH)
+    find_program(CMAKE_CXX_COMPILER NAMES ${TOOLCHAIN_PREFIX}g++ PATHS ${CROSS_COMPILER} NO_DEFAULT_PATH)
+    find_program(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy PATHS ${CROSS_COMPILER} NO_DEFAULT_PATH)
+    find_program(CMAKE_STRIP ${TOOLCHAIN_PREFIX}strip PATHS ${CROSS_COMPILER} NO_DEFAULT_PATH)
+else()
+    find_program(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
+    find_program(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}g++)
+    find_program(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
+    find_program(CMAKE_STRIP ${TOOLCHAIN_PREFIX}strip)
+endif()
+
+if(NOT CMAKE_C_COMPILER)
+    message(FATAL_ERROR "C compiler not found")
+endif()
+
+if(NOT CMAKE_CXX_COMPILER)
+    message(FATAL_ERROR "C++ compiler not found")
+endif()
+
+if(NOT CMAKE_FIND_ROOT_PATH_MODE_PROGRAM)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+endif()
+
+if(NOT CMAKE_FIND_ROOT_PATH_MODE_LIBRARY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+endif()
+
+if(NOT CMAKE_FIND_ROOT_PATH_MODE_INCLUDE)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+endif()
+
+if(NOT CMAKE_FIND_ROOT_PATH_MODE_PACKAGE)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+endif()
+
+add_compile_options(
+    -march=armv8-a 
+    -mtune=cortex-a53 
+    -mfpu=neon-fp-armv8 
+    -mfloat-abi=hard
+)
