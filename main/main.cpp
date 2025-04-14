@@ -203,15 +203,20 @@ int main(int argc, char *argv[])
     uint32_t rd_addr;
     uint32_t rd_size;
 
-    if (argc < 3)
+    if (argc < 2)
     {
         LOG_ERROR("Usage: %s <command> [options]", argv[0]);
-        LOG_ERROR("Commands: flash, read");
+        LOG_ERROR("Commands: flash, read, list_algo");
         return -1;
     }
 
     command = argv[1];
-    if (command == "flash")
+    if (command == "list_algo")
+    {
+        Algorithm::list_device(algorithm_bin_ptr(), algorithm_bin_len());
+        return 0;
+    }
+    else if (command == "flash")
     {
         if (argc < 6 || argc > 7)
         {
@@ -281,5 +286,10 @@ int main(int argc, char *argv[])
         rd_size = static_cast<uint32_t>(std::stoul(argv[5], nullptr, 16));
         swd = swd_create(swclk_pin, swdio_pin);
         read_memory(swd, rd_addr, rd_size);
+    }
+    else
+    {
+        LOG_ERROR("Unknown command %s", command.c_str());
+        return -1;
     }
 }
