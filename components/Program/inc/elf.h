@@ -38,56 +38,55 @@
 #define ELFSIZE    32
 
 #ifndef __UINT8_TYPE__
-typedef unsigned char  __uint8_t;
+#define __UINT8_TYPE__ unsigned char
 #endif
 #ifndef __INT8_TYPE__
-typedef signed char  __int8_t;
+#define __INT8_TYPE__ signed char
 #endif
 #ifndef __UINT16_TYPE__
-typedef unsigned short  __uint16_t;
+#define __UINT16_TYPE__ unsigned short
 #endif
 #ifndef __INT16_TYPE__
-typedef signed short  __int16_t;
+#define __INT16_TYPE__ signed short
 #endif
 #ifndef __UINT32_TYPE__
-typedef unsigned int  __uint32_t;
+#define __UINT32_TYPE__ unsigned int
 #endif
 #ifndef __INT32_TYPE__
-typedef signed int  __int32_t;
+#define __INT32_TYPE__ signed int
 #endif
 #ifndef __UINT64_TYPE__
-typedef unsigned long long __uint64_t;
+#define __UINT64_TYPE__ unsigned long long
 #endif
 #ifndef __INT64_TYPE__
-typedef signed long long __int64_t;
+#define __INT64_TYPE__ signed long long
 #endif
 
+typedef __UINT8_TYPE__	Elf_Byte;
 
-typedef __uint8_t	Elf_Byte;
+typedef __UINT32_TYPE__	Elf32_Addr;	/* Unsigned program address */
+typedef __UINT32_TYPE__	Elf32_Off;	/* Unsigned file offset */
+typedef __INT32_TYPE__	Elf32_Sword;	/* Signed large integer */
+typedef __UINT32_TYPE__	Elf32_Word;	/* Unsigned large integer */
+typedef __UINT16_TYPE__	Elf32_Half;	/* Unsigned medium integer */
 
-typedef __uint32_t	Elf32_Addr;	/* Unsigned program address */
-typedef __uint32_t	Elf32_Off;	/* Unsigned file offset */
-typedef __int32_t	Elf32_Sword;	/* Signed large integer */
-typedef __uint32_t	Elf32_Word;	/* Unsigned large integer */
-typedef __uint16_t	Elf32_Half;	/* Unsigned medium integer */
-
-typedef __uint64_t	Elf64_Addr;
-typedef __uint64_t	Elf64_Off;
-typedef __int32_t	Elf64_Shalf;
+typedef __UINT64_TYPE__	Elf64_Addr;
+typedef __UINT64_TYPE__	Elf64_Off;
+typedef __INT32_TYPE__	Elf64_Shalf;
 
 #ifdef __alpha__
-typedef __int64_t	Elf64_Sword;
-typedef __uint64_t	Elf64_Word;
+typedef __INT64_TYPE__	Elf64_Sword;
+typedef __UINT64_TYPE__	Elf64_Word;
 #else
-typedef __int32_t	Elf64_Sword;
-typedef __uint32_t	Elf64_Word;
+typedef __INT32_TYPE__	Elf64_Sword;
+typedef __UINT32_TYPE__	Elf64_Word;
 #endif
 
-typedef __int64_t	Elf64_Sxword;
-typedef __uint64_t	Elf64_Xword;
+typedef __INT64_TYPE__	Elf64_Sxword;
+typedef __UINT64_TYPE__	Elf64_Xword;
 
-typedef __uint32_t	Elf64_Half;
-typedef __uint16_t	Elf64_Quarter;
+typedef __UINT32_TYPE__	Elf64_Half;
+typedef __UINT16_TYPE__	Elf64_Quarter;
 
 /*
  * e_ident[] identification indexes 
@@ -394,7 +393,7 @@ typedef struct {
 
 #define	ELF64_R_SYM(info)	((info) >> 32)
 #define	ELF64_R_TYPE(info)	((info) & 0xFFFFFFFF)
-#define ELF64_R_INFO(s,t) 	(((s) << 32) + (__uint32_t)(t))
+#define ELF64_R_INFO(s,t) 	(((s) << 32) + (__UINT32_TYPE__)(t))
 
 /* Program Header */
 typedef struct {
@@ -519,7 +518,7 @@ typedef struct {
 	Elf32_Word	au_v;				/* 32-bit value */
 } Aux32Info;
 
-#define ELF64_NO_ADDR	((__uint64_t) ~0)/* Indicates addr. not yet filled in */
+#define ELF64_NO_ADDR	((__UINT64_TYPE__) ~0)/* Indicates addr. not yet filled in */
 #define ELF64_AUX_ENTRIES	8	/* Size of aux array passed to loader */
 
 typedef struct {
