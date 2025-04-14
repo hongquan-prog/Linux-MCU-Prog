@@ -3,6 +3,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define GPIOA_BASE 0x0300B000
 #define GPIOL_BASE 0x07022000
@@ -29,19 +31,43 @@ AH618_GPIO_Type *AH618_GPIOBase(int fd, int pin)
     if ((port == AH618_GPIOC) || (port == AH618_GPIOF) || (port == AH618_GPIOG) || (port == AH618_GPIOH))
     {
         if (!gpio_mapped_addr[0])
+        {
             gpio_mapped_addr[0] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIOA_BASE);
+            if (gpio_mapped_addr[0] == MAP_FAILED)
+            {
+                perror("mmap failed");
+                exit(-1);
+            }
+        }
+
         ret = gpio_mapped_addr[0] + port;
     }
     else if (port == AH618_GPIOI)
     {
         if (!gpio_mapped_addr[0])
+        {
             gpio_mapped_addr[0] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIOA_BASE);
+            if (gpio_mapped_addr[0] == MAP_FAILED)
+            {
+                perror("mmap failed");
+                exit(-1);
+            }
+        }
+
         ret = gpio_mapped_addr[0] + 9;
     }
     else if (port == AH618_GPIOL)
     {
         if (!gpio_mapped_addr[1])
+        {
             gpio_mapped_addr[1] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIOL_BASE);
+            if (gpio_mapped_addr[1] == MAP_FAILED)
+            {
+                perror("mmap failed");
+                exit(-1);
+            }
+        }
+
         ret = gpio_mapped_addr[1];
     }
 

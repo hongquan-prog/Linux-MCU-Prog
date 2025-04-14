@@ -527,7 +527,6 @@ bool Algorithm::find(const unsigned char *data, const unsigned int len, const st
 
     for (; (read_pos < len);)
     {
-        read_pos = hdr_pos;
         memcpy(&tlv, data + read_pos, sizeof(tlv));
         read_pos += sizeof(tlv);
         if ((read_pos < len) && (tlv.it_magic == TLV_ALGO_HDR))
@@ -605,6 +604,8 @@ bool Algorithm::find(const unsigned char *data, const unsigned int len, const st
                 }
             }
         }
+
+        read_pos = hdr_pos;
     }
 
     return ret;
@@ -627,7 +628,6 @@ void Algorithm::list_device(const unsigned char *data, const unsigned int len)
     std::cout << "Available devices:" << std::endl;
     for (; (read_pos < len);)
     {
-        read_pos = hdr_pos;
         memcpy(&tlv, data + read_pos, sizeof(tlv));
         read_pos += sizeof(tlv);
         if ((read_pos < len) && (tlv.it_magic == TLV_ALGO_HDR))
@@ -645,5 +645,7 @@ void Algorithm::list_device(const unsigned char *data, const unsigned int len)
                 std::cout << ++index << ". " << dev.get() << std::endl;
             }
         }
+
+        read_pos = hdr_pos;
     }
 }

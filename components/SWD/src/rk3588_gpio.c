@@ -3,6 +3,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 enum
 {
@@ -34,7 +36,15 @@ RK3588_GPIO_Type *RK3588_GPIOBase(int fd, int pin)
     if (port <= RK3588_GPIO4)
     {
         if (!gpio_mapped_addr[port])
+        {
             gpio_mapped_addr[port] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, gpio_base[port]);
+            if (gpio_mapped_addr[port] == MAP_FAILED)
+            {
+                perror("mmap failed");
+                exit(-1);
+            }
+        }
+
         return gpio_mapped_addr[port];
     }
 

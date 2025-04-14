@@ -3,6 +3,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 enum
 {
@@ -152,6 +154,12 @@ RGPIO_Type *RGPIO_GPIOBase(int fd, int pin)
 	if (!mapped_addr[IOMUXC])
 	{
 		mapped_addr[IOMUXC] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, reg_base[IOMUXC]);
+
+		if (mapped_addr[IOMUXC] == MAP_FAILED)
+		{
+			perror("mmap failed");
+			exit(-1);
+		}
 	}
 
 	// MUX
@@ -174,7 +182,14 @@ RGPIO_Type *RGPIO_GPIOBase(int fd, int pin)
 	if (port < IOMUXC)
 	{
 		if (!mapped_addr[port])
+		{
 			mapped_addr[port] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, reg_base[port]);
+			if (mapped_addr[port] == MAP_FAILED)
+			{
+				perror("mmap failed");
+				exit(-1);
+			}
+		}
 
 		ret = (RGPIO_Type *)mapped_addr[port];
 	}

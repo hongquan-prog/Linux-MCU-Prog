@@ -3,6 +3,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define GPIOA_BASE 0x03020000
 #define GPIOB_BASE 0x03021000
@@ -220,6 +222,10 @@ SG2002_GPIO_Type *SG2002_GPIOBase(int fd, int pin)
         if (!gpio_mapped_addr[index])
         {
             gpio_mapped_addr[index] = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, gpio_base_addr[index]);
+            if (gpio_mapped_addr[index] == MAP_FAILED) {
+                perror("mmap failed");
+                exit(-1);
+            }
         }
 
         ret = gpio_mapped_addr[index];
@@ -228,6 +234,10 @@ SG2002_GPIO_Type *SG2002_GPIOBase(int fd, int pin)
             if (!gpioad_cfg_mapped_addr)
             {
                 gpioad_cfg_mapped_addr = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIOAD_CFG_BASE);
+                if (gpioad_cfg_mapped_addr == MAP_FAILED) {
+                    perror("mmap failed");
+                    exit(-1);
+                }
             }
 
             pad_mapped_addr = gpioad_cfg_mapped_addr;
@@ -238,11 +248,19 @@ SG2002_GPIO_Type *SG2002_GPIOBase(int fd, int pin)
             if (!gpioad_cfg_mapped_addr)
             {
                 gpioad_cfg_mapped_addr = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIOAD_CFG_BASE);
+                if (gpioad_cfg_mapped_addr == MAP_FAILED) {
+                    perror("mmap failed");
+                    exit(-1);
+                }
             }
 
             if (!gpiopwr_cfg_mapped_addr)
             {
                 gpiopwr_cfg_mapped_addr = mmap(NULL, sysconf(_SC_PAGE_SIZE), PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIOPWR_CFG_BASE);
+                if (gpiopwr_cfg_mapped_addr == MAP_FAILED) {
+                    perror("mmap failed");
+                    exit(-1);
+                }
             }
 
             pad_mapped_addr = gpioad_cfg_mapped_addr;
